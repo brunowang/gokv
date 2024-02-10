@@ -19,7 +19,7 @@ func TestBTree_Delete(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bt := NewBTree()
+			bt := NewBTree[*FilePos]()
 			bt.Put(nil, &FilePos{FileID: 1001, Offset: 1})
 			bt.Put([]byte("key01"), &FilePos{FileID: 1001, Offset: 2})
 			if got := bt.Delete(tt.args.key); got != tt.want {
@@ -43,7 +43,7 @@ func TestBTree_Get(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bt := NewBTree()
+			bt := NewBTree[*FilePos]()
 			bt.Put(nil, &FilePos{FileID: 1001, Offset: 1})
 			bt.Put([]byte("key01"), &FilePos{FileID: 1001, Offset: 2})
 			bt.Put([]byte("key01"), &FilePos{FileID: 1001, Offset: 3})
@@ -69,7 +69,7 @@ func TestBTree_Put(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bt := NewBTree()
+			bt := NewBTree[*FilePos]()
 			if got := bt.Put(tt.args.key, tt.args.pos); got != tt.want {
 				t.Errorf("Put() = %v, want %v", got, tt.want)
 			}

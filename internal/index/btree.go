@@ -5,20 +5,20 @@ import (
 	"sync"
 )
 
-type BTree struct {
+type BTree[T any] struct {
 	tree *btree.BTree
 	lock *sync.RWMutex
 }
 
-func NewBTree() *BTree {
-	return &BTree{
+func NewBTree[T any]() *BTree[T] {
+	return &BTree[T]{
 		tree: btree.New(32),
 		lock: new(sync.RWMutex),
 	}
 }
 
-func (bt *BTree) Put(key []byte, pos *FilePos) bool {
-	it := &Item[*FilePos]{Key: key, Value: pos}
+func (bt *BTree[T]) Put(key []byte, val T) bool {
+	it := &Item[T]{Key: key, Value: val}
 	bt.lock.Lock()
 	defer bt.lock.Unlock()
 
@@ -27,24 +27,24 @@ func (bt *BTree) Put(key []byte, pos *FilePos) bool {
 	return true
 }
 
-func (bt *BTree) Get(key []byte) *FilePos {
-	itKey := &Item[*FilePos]{Key: key}
+func (bt *BTree[T]) Get(key []byte) (val T) {
+	itKey := &Item[T]{Key: key}
 	bt.lock.RLock()
 	defer bt.lock.RUnlock()
 
 	it := bt.tree.Get(itKey)
 	if it == nil {
-		return nil
+		return val
 	}
-	if it, ok := it.(*Item[*FilePos]); ok {
+	if it, ok := it.(*Item[T]); ok {
 		return it.Value
 	}
 
-	return nil
+	return val
 }
 
-func (bt *BTree) Delete(key []byte) bool {
-	it := &Item[*FilePos]{Key: key}
+func (bt *BTree[T]) Delete(key []byte) bool {
+	it := &Item[T]{Key: key}
 	bt.lock.Lock()
 	defer bt.lock.Unlock()
 
