@@ -17,14 +17,20 @@ func NewBTree[T any]() *BTree[T] {
 	}
 }
 
-func (bt *BTree[T]) Put(key []byte, val T) bool {
+func (bt *BTree[T]) Put(key []byte, val T) (oldVal T) {
 	it := &Item[T]{Key: key, Value: val}
 	bt.lock.Lock()
 	defer bt.lock.Unlock()
 
-	bt.tree.ReplaceOrInsert(it)
+	old := bt.tree.ReplaceOrInsert(it)
+	if old == nil {
+		return
+	}
+	if old, ok := old.(*Item[T]); ok {
+		return old.Value
+	}
 
-	return true
+	return
 }
 
 func (bt *BTree[T]) Get(key []byte) (val T) {
@@ -43,10 +49,18 @@ func (bt *BTree[T]) Get(key []byte) (val T) {
 	return val
 }
 
-func (bt *BTree[T]) Delete(key []byte) bool {
+func (bt *BTree[T]) Delete(key []byte) (oldVal T, ok bool) {
 	it := &Item[T]{Key: key}
 	bt.lock.Lock()
 	defer bt.lock.Unlock()
 
-	return bt.tree.Delete(it) != nil
+	old := bt.tree.Delete(it)
+	if old == nil {
+		return
+	}
+	if old, ok := old.(*Item[T]); ok {
+		return old.Value, true
+	}
+
+	return
 }
