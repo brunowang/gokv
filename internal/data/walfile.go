@@ -1,7 +1,6 @@
 package data
 
 import (
-	"errors"
 	"fmt"
 	"github.com/brunowang/gokv/internal/iomgr"
 	"path/filepath"
@@ -9,10 +8,6 @@ import (
 
 const (
 	WalFileSuffix = ".wal"
-)
-
-var (
-	ErrInvalidCRC = errors.New("invalid crc value, wal maybe corrupted")
 )
 
 type FilePos struct {
@@ -42,4 +37,43 @@ func OpenWalFile(dirPath string, fileID uint32) (*WalFile, error) {
 		},
 		ioMgr: fileMgr,
 	}, nil
+}
+
+func (f *WalFile) Read(offset int64) (*WriteAheadLog, error) {
+	fileSize, err := f.ioMgr.Size()
+	if err != nil {
+		return nil, err
+	}
+	walData := &WriteAheadLog{}
+
+	var headerSize int64 = walHeaderMaxSize
+	if offset+headerSize > fileSize {
+		headerSize = fileSize - offset
+	}
+
+	headerBytes := make([]byte, headerSize)
+	if _, err := f.ioMgr.Read(headerBytes, offset); err != nil {
+		return nil, err
+	}
+	if err := walData.DecodeHeader(headerBytes); err != nil {
+		return nil, err
+	}
+	offset += int64(walData.HeaderSize)
+
+	bodySize := walData.GetSize() - walData.HeaderSize
+
+	bodyBytes := make([]byte, bodySize)
+	if _, err := f.ioMgr.Read(bodyBytes, offset); err != nil {
+		return nil, err
+	}
+	if err := walData.DecodeBody(bodyBytes); err != nil {
+		return nil, err
+	}
+	offset += int64(bodySize)
+
+	if !walData.CheckCRC(headerBytes) {
+		return nil, ErrInvalidCRC
+	}
+
+	return walData, nil
 }
