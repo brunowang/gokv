@@ -22,8 +22,3 @@ func (a *Item[T]) Less(i btree.Item) bool {
 	}
 	return false
 }
-
-type FilePos struct {
-	FileID uint32
-	Offset uint64
-}
