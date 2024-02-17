@@ -77,3 +77,13 @@ func (f *WalFile) Read(offset int64) (*WriteAheadLog, error) {
 
 	return walData, nil
 }
+
+func (f *WalFile) Write(walData *WriteAheadLog) error {
+	bs, _ := walData.Encode()
+	n, err := f.ioMgr.Write(bs)
+	if err != nil {
+		return err
+	}
+	f.Offset += uint64(n)
+	return nil
+}

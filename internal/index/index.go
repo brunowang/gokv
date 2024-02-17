@@ -6,9 +6,11 @@ import (
 )
 
 type Indexer[T any] interface {
-	Put(item Item[T]) bool
-	Get(key []byte) T
-	Delete(key []byte) bool
+	Put(key []byte, val T) (T, bool)
+	Get(key []byte) (T, bool)
+	Delete(key []byte) (T, bool)
+	All() []T
+	Len() int
 }
 
 type Item[T any] struct {

@@ -27,10 +27,13 @@ type WALHeader struct {
 	HeaderSize int
 }
 
+type KVPair struct {
+	Key, Value []byte
+}
+
 type WriteAheadLog struct {
 	WALHeader
-	Key   []byte
-	Value []byte
+	KVPair
 }
 
 func (l *WriteAheadLog) Encode() ([]byte, int) {
