@@ -18,7 +18,7 @@ func Init(path string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(sysConfig)
+	fmt.Printf("raft config: %v\n", sysConfig)
 	config := raft.DefaultConfig()
 	config.LocalID = raft.ServerID(sysConfig.ServerID)
 	config.Logger = hclog.New(&hclog.LoggerOptions{

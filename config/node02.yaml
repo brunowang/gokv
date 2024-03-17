@@ -1,7 +1,7 @@
 server_name: node02
 server_id: 2
-log_store: node02/log_store.bolt
-stable_store: node02/stable_store.bolt
+log_store: .raft/node02/log_store.bolt
+stable_store: .raft/node02/stable_store.bolt
 transport: 127.0.0.1:3002
 servers:
   - id: 1

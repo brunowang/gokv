@@ -1,7 +1,7 @@
 server_name: node03
 server_id: 3
-log_store: node03/log_store.bolt
-stable_store: node03/stable_store.bolt
+log_store: .raft/node03/log_store.bolt
+stable_store: .raft/node03/stable_store.bolt
 transport: 127.0.0.1:3003
 servers:
   - id: 1
